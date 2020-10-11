@@ -29,7 +29,7 @@
 /******************************************************************************/
 
 //#define FAST_RUN
-#define NO_CSV_OUTPUT
+//#define NO_CSV_OUTPUT
 
 #ifdef FAST_RUN
 
@@ -39,18 +39,17 @@
 #define RUNLENGTH 10e6 /* packets */
 
 /* Comma separated list of random seeds to run. */
-#define RANDOM_SEED_LIST 400050636, 400099173, 225, 766, 590, 309, 519, 430, 638, 126 
+#define RANDOM_SEED_LIST 400050636, 400099173, 225
 
 #else
 
-#define PACKET_ARRIVAL_RATE 495 /* packets per second */
+#define PACKET_ARRIVAL_RATE 457, 458, 459, 460 /* packets per second */
 #define PACKET_LENGTH 2000 /* bits */
 #define LINK_BIT_RATE 1e6 /* bits per second */
 #define RUNLENGTH 10e6 /* packets */
 
 /* Comma separated list of random seeds to run. */
-#define RANDOM_SEED_LIST 400050636, 400099173, 225, 766, 590, 309, 519, 430, 638, 126 
-
+#define RANDOM_SEED_LIST 400050636, 400099173, 225
 #endif //FAST_RUN
 
 #define PACKET_XMT_TIME (double) PACKET_LENGTH/LINK_BIT_RATE

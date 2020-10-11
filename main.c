@@ -81,6 +81,8 @@ int main(void)
   fprintf(fp, ("Service Fraction ,"));
   fprintf(fp, ("Arrival rate,"));
   fprintf(fp, ("Mean Delay (msec),"));
+  fprintf(fp, ("Number of packets exceeds 20ms,"));
+  fprintf(fp, ("Percentage of Packets exceeds 20ms,"));
 
   fprintf(fp, "\n");
   fclose(fp);
@@ -205,6 +207,12 @@ int main(void)
     //fprintf(fp, ("Mean Delay (msec),"));
     fprintf(fp, "%f, ",
             1e3 * for_avg_acc.accumulated_delay / for_avg_acc.number_of_packets_processed);
+
+   //fprintf(fp, ("Number of packets exceeds 20ms,"));
+   fprintf(fp, "%ld, ", for_avg_acc.packets_exceed_time);
+
+   //fprintf(fp, ("Percentage of Packets exceeds 20ms,"));
+   fprintf(fp, "%.5f, ", percentage_exceed_time * 100);
 
     fprintf(fp, "\n");
     fclose(fp);

@@ -1,0 +1,5 @@
+Random Seed,Packet arrival count,Transmitted packet count ,Service Fraction ,Arrival rate,Mean Delay (msec),Number of packets exceeds 20ms,Percentage of Packets exceeds 20ms,
+0,10000005, 10000000,1.00000,457.000, 12.656546, 1920559, 19.20559, 
+1,10000005, 10000000,1.00000,458.000, 12.935908, 1998305, 19.98305, 
+2,10000005, 10000000,1.00000,459.000, 13.228823, 2079501, 20.79501, 
+3,10000005, 10000000,1.00000,460.000, 13.536148, 2163336, 21.63336, 
