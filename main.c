@@ -44,8 +44,7 @@
  * event. When each run is finished, output is printed on the terminal.
  */
 
-int
-main(void)
+int main(void)
 {
   Simulation_Run_Ptr simulation_run;
   Simulation_Run_Data data;
@@ -61,14 +60,14 @@ main(void)
   double PACKET_ARRIVAL_RATE_LIST[] = {PACKET_ARRIVAL_RATE};
   unsigned random_seed;
 
-  int size_rand_seed = (sizeof(RANDOM_SEEDS)/sizeof(unsigned)) - 1;
-  printf("size_rand_seed = %d \n", size_rand_seed);
+  int size_rand_seed = (sizeof(RANDOM_SEEDS) / sizeof(unsigned)) - 1;
+  printf("size_rand_seed = %d \n\n", size_rand_seed);
 
   int j;
 
-  #ifndef NO_CSV_OUTPUT
+#ifndef NO_CSV_OUTPUT
   // create a csv file
-  FILE* fp;
+  FILE *fp;
   char data_set_name[] = "./Q3.csv";
   //file IO
 
@@ -85,159 +84,151 @@ main(void)
 
   fprintf(fp, "\n");
   fclose(fp);
-  #endif
+#endif
 
-
-  for (int i = 0; i < (sizeof(PACKET_ARRIVAL_RATE_LIST)/sizeof(double)); i ++)
+  for (int i = 0; i < (sizeof(PACKET_ARRIVAL_RATE_LIST) / sizeof(double)); i++)
   {
 
-      j = 0;
-      random_seed = RANDOM_SEEDS[j];
+    j = 0;
+    random_seed = RANDOM_SEEDS[j];
 
-      for_avg_acc.packet_arrival_rate = 0;
-      for_avg_acc.blip_counter = 0;
-      for_avg_acc.arrival_count = 0;
-      for_avg_acc.number_of_packets_processed = 0;
-      for_avg_acc.accumulated_delay = 0;
-      for_avg_acc.random_seed = 0;
+    for_avg_acc.packet_arrival_rate = 0;
+    for_avg_acc.blip_counter = 0;
+    for_avg_acc.arrival_count = 0;
+    for_avg_acc.number_of_packets_processed = 0;
+    for_avg_acc.accumulated_delay = 0;
+    for_avg_acc.random_seed = 0;
+    for_avg_acc.packets_exceed_time = 0;
 
+    while (random_seed != 0)
+    {
 
-      while (random_seed != 0) {
-     
+      simulation_run = simulation_run_new(); /* Create a new simulation run. */
 
-        simulation_run = simulation_run_new(); /* Create a new simulation run. */
-
-        /*
+      /*
          * Set the simulation_run data pointer to our data object.
          */
 
-        simulation_run_attach_data(simulation_run, (void *) & data);
+      simulation_run_attach_data(simulation_run, (void *)&data);
 
-        /* 
+      /* 
          * Initialize the simulation_run data variables, declared in main.h.
          */
-        
-        data.packet_arrival_rate = exponential_generator(PACKET_ARRIVAL_RATE_LIST[i]);
-        data.blip_counter = 0;
-        data.arrival_count = 0;
-        data.number_of_packets_processed = 0;
-        data.accumulated_delay = 0.0;
-        data.random_seed = random_seed;
-     
-        /* 
+
+      data.packet_arrival_rate = PACKET_ARRIVAL_RATE_LIST[i];
+      data.blip_counter = 0;
+      data.arrival_count = 0;
+      data.number_of_packets_processed = 0;
+      data.accumulated_delay = 0.0;
+      data.random_seed = random_seed;
+      data.packets_exceed_time = 0;
+
+      /* 
          * Create the packet buffer and transmission link, declared in main.h.
          */
 
-        data.buffer = fifoqueue_new();
-        data.link   = server_new();
+      data.buffer = fifoqueue_new();
+      data.link = server_new();
 
-        /* 
+      /* 
          * Set the random number generator seed for this run.
          */
 
-        random_generator_initialize(random_seed);
+      random_generator_initialize(random_seed);
 
-        /* 
+      /* 
          * Schedule the initial packet arrival for the current clock time (= 0).
          */
 
-        schedule_packet_arrival_event(simulation_run, 
-                      simulation_run_get_time(simulation_run));
+      schedule_packet_arrival_event(simulation_run,
+                                    simulation_run_get_time(simulation_run));
 
-        /* 
+      /* 
          * Execute events until we are finished. 
          */
 
-        while(data.number_of_packets_processed < RUNLENGTH) {
-          simulation_run_execute_event(simulation_run);
-        }
+      while (data.number_of_packets_processed < RUNLENGTH)
+      {
+        simulation_run_execute_event(simulation_run);
+      }
 
-        /*
+      /*
          * Output results and clean up after ourselves.
          */
 
-        output_results(simulation_run);
+      output_results(simulation_run);
 
-        for_avg_acc.packet_arrival_rate += data.packet_arrival_rate;
-        for_avg_acc.blip_counter += data.blip_counter;
-        for_avg_acc.arrival_count += data.arrival_count;
-        for_avg_acc.number_of_packets_processed += data.number_of_packets_processed;
-        for_avg_acc.accumulated_delay += data.accumulated_delay;
-        for_avg_acc.random_seed += data.random_seed;
+      for_avg_acc.packet_arrival_rate += data.packet_arrival_rate;
+      for_avg_acc.blip_counter += data.blip_counter;
+      for_avg_acc.arrival_count += data.arrival_count;
+      for_avg_acc.number_of_packets_processed += data.number_of_packets_processed;
+      for_avg_acc.accumulated_delay += data.accumulated_delay;
+      for_avg_acc.random_seed += data.random_seed;
+      for_avg_acc.packets_exceed_time += data.packets_exceed_time;
 
-        cleanup_memory(simulation_run);
+      cleanup_memory(simulation_run);
 
-        j++;
-        random_seed = RANDOM_SEEDS[j];
-      }
+      j++;
+      random_seed = RANDOM_SEEDS[j];
+    }
 
-      for_avg_acc.packet_arrival_rate /= size_rand_seed;
-      for_avg_acc.blip_counter /= size_rand_seed;
-      for_avg_acc.arrival_count /= size_rand_seed;
-      for_avg_acc.number_of_packets_processed /= size_rand_seed;
-      for_avg_acc.accumulated_delay /= size_rand_seed;
-      for_avg_acc.random_seed /= size_rand_seed;
+    for_avg_acc.packet_arrival_rate /= size_rand_seed;
+    for_avg_acc.blip_counter /= size_rand_seed;
+    for_avg_acc.arrival_count /= size_rand_seed;
+    for_avg_acc.number_of_packets_processed /= size_rand_seed;
+    for_avg_acc.accumulated_delay /= size_rand_seed;
+    for_avg_acc.random_seed /= size_rand_seed;
+    for_avg_acc.packets_exceed_time /= size_rand_seed;
 
+    double percentage_exceed_time = (double)for_avg_acc.packets_exceed_time / RUNLENGTH;
+    printf("percentage exceed time: %f", percentage_exceed_time);
 
-  #ifndef NO_CSV_OUTPUT
-      fp = fopen(data_set_name, "a");
-      //cell/element name/type
+#ifndef NO_CSV_OUTPUT
+    fp = fopen(data_set_name, "a");
+    //cell/element name/type
 
-      //fprintf(fp, ("Random Seed,"));
-      fprintf(fp, "%d,", i);
+    //fprintf(fp, ("Random Seed,"));
+    fprintf(fp, "%d,", i);
 
-      //fprintf(fp, ("Packet arrival count,"));
-      fprintf(fp, "%ld, ", for_avg_acc.arrival_count);
+    //fprintf(fp, ("Packet arrival count,"));
+    fprintf(fp, "%ld, ", for_avg_acc.arrival_count);
 
-      //fprintf(fp, ("Transmitted packet count ,"));
-      fprintf(fp, "%ld,", for_avg_acc.number_of_packets_processed);
+    //fprintf(fp, ("Transmitted packet count ,"));
+    fprintf(fp, "%ld,", for_avg_acc.number_of_packets_processed);
 
-      //fprintf(fp, ("Service Fraction ,"));
-      fprintf(fp, "%.5f,", (double) for_avg_acc.number_of_packets_processed /for_avg_acc.arrival_count);
+    //fprintf(fp, ("Service Fraction ,"));
+    fprintf(fp, "%.5f,", (double)for_avg_acc.number_of_packets_processed / for_avg_acc.arrival_count);
 
-      //fprintf(fp, ("Arrival rate,"));
-      fprintf(fp, "%.3f, ", (double) for_avg_acc.packet_arrival_rate);
+    //fprintf(fp, ("Arrival rate,"));
+    fprintf(fp, "%.3f, ", (double)for_avg_acc.packet_arrival_rate);
 
-      //fprintf(fp, ("Mean Delay (msec),"));
-      fprintf(fp, "%f, ",
-         1e3*for_avg_acc.accumulated_delay/for_avg_acc.number_of_packets_processed);
+    //fprintf(fp, ("Mean Delay (msec),"));
+    fprintf(fp, "%f, ",
+            1e3 * for_avg_acc.accumulated_delay / for_avg_acc.number_of_packets_processed);
 
-      fprintf(fp, "\n");
-      fclose(fp);
-  #endif
+    fprintf(fp, "\n");
+    fclose(fp);
+#endif
 
-      double xmtted_fraction;
-      printf("\n");
-      printf("avg Random Seed = %d \n", for_avg_acc.random_seed);
-      printf("avg Packet arrival count = %ld \n", for_avg_acc.arrival_count);
-    
-      xmtted_fraction = (double) for_avg_acc.number_of_packets_processed /
-        for_avg_acc.arrival_count;
-    
-      printf("avg Transmitted packet count  = %ld (Service Fraction = %.5f)\n",
-         for_avg_acc.number_of_packets_processed, xmtted_fraction);
-    
-      printf("avg Arrival rate = %.3f packets/second \n", (double) for_avg_acc.packet_arrival_rate);
-    
-      printf("avg Mean Delay (msec) = %f \n",
-         1e3*for_avg_acc.accumulated_delay/for_avg_acc.number_of_packets_processed);
-    
-      printf("\n");
+    double xmtted_fraction;
+    printf("\n");
+    printf("avg Random Seed = %d \n", for_avg_acc.random_seed);
+    printf("avg Packet arrival count = %ld \n", for_avg_acc.arrival_count);
 
+    xmtted_fraction = (double)for_avg_acc.number_of_packets_processed /
+                      for_avg_acc.arrival_count;
+
+    printf("avg Transmitted packet count  = %ld (Service Fraction = %.5f)\n",
+           for_avg_acc.number_of_packets_processed, xmtted_fraction);
+
+    printf("avg Arrival rate = %.3f packets/second \n", (double)for_avg_acc.packet_arrival_rate);
+
+    printf("avg Mean Delay (msec) = %f \n",
+           1e3 * for_avg_acc.accumulated_delay / for_avg_acc.number_of_packets_processed);
+
+    printf("\n");
   }
 
   //getchar();   /* Pause before finishing. */
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
